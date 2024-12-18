@@ -319,16 +319,16 @@ StatCalc.prototype.setCurrentTerrainModsFromTilePropertyString = function(actor,
 			
 			if(this.applyStatModsToValue(actor, 0, ["terrain_adept"])){
 				if(actor.SRWStats.mech.currentTerrainMods.defense < 0){
-					actor.SRWStats.mech.currentTerrainMods.defense*=-1;
+					actor.SRWStats.mech.currentTerrainMods.defense = 0;
 				}
 				if(actor.SRWStats.mech.currentTerrainMods.evasion < 0){
-					actor.SRWStats.mech.currentTerrainMods.evasion*=-1;
+					actor.SRWStats.mech.currentTerrainMods.evasion = 0;
 				}
 				if(actor.SRWStats.mech.currentTerrainMods.hp_regen < 0){
-					actor.SRWStats.mech.currentTerrainMods.hp_regen*=-1;
+					actor.SRWStats.mech.currentTerrainMods.hp_regen = 0;
 				}
 				if(actor.SRWStats.mech.currentTerrainMods.en_regen < 0){
-					actor.SRWStats.mech.currentTerrainMods.en_regen*=-1;
+					actor.SRWStats.mech.currentTerrainMods.en_regen = 0;
 				}
 			}
 			
@@ -6459,8 +6459,8 @@ StatCalc.prototype.applyHPRegen = function(type, factionId){
 			if(_this.isBoarded(actor)){
 				_this.recoverHPPercent(actor, 20);	
 			} else {
-				_this.recoverHPPercent(actor, _this.applyStatModsToValue(actor, 0, ["HP_regen"]));	
-				_this.recoverHP(actor, _this.applyStatModsToValue(actor, 0, ["HP_regen_flat"]));			
+				_this.recoverHPPercent(actor, _this.applyStatModsToValue(actor, 0, ["HP_regen"]));
+				_this.recoverHP(actor, _this.applyStatModsToValue(actor, 0, ["HP_regen_flat"]));				
 				_this.recoverHPPercent(actor, _this.getCurrentTerrainMods(actor).hp_regen);	
 				_this.recoverHPPercent(actor, ENGINE_SETTINGS.DEFAULT_HP_REGEN || 0);	
 			}
@@ -6701,6 +6701,7 @@ StatCalc.prototype.applyENRegen = function(type, factionId){
 				_this.recoverENPercent(actor, 20);	
 			} else {
 				_this.recoverENPercent(actor, _this.applyStatModsToValue(actor, 0, ["EN_regen"]));	
+				_this.recoverEN(actor, _this.applyStatModsToValue(actor, 0, ["EN_regen_flat"]));
 				_this.recoverENPercent(actor, _this.getCurrentTerrainMods(actor).en_regen);	
 				_this.recoverENPercent(actor, ENGINE_SETTINGS.DEFAULT_EN_REGEN || 0);			
 				_this.recoverEN(actor, 5);	
@@ -7371,6 +7372,9 @@ StatCalc.prototype.getActiveStatMods = function(actor, actorKey, excludedSkills)
 						const isFriendly = $gameSystem.isFriendly(actor, $gameTemp.currentBattleTarget.factionId);
 						const tmp = effects.filter(effect => effect.targeting == "all" || (isFriendly && effect.targeting == "ally") || (!isFriendly && effect.targeting == "enemy"));
 						accumulateFromAbilityList(tmp, $weaponEffectManager);
+					}		
+					if($gameTemp.currentMapTargets){
+						accumulateFromAbilityList(effects, $weaponEffectManager);
 					}							
 				}
 			}	

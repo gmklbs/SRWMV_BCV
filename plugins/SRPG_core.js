@@ -2598,6 +2598,7 @@ SceneManager.isInSaveScene = function(){
 						$statCalc.modifyWill(battleEffect.attacked.ref, $statCalc.applyStatModsToValue(battleEffect.attacked.ref, 0, ["evade_will"]));
 									
 						$statCalc.modifyWill(battleEffect.ref, personalityInfo.miss || 0);
+						$statCalc.modifyWill(battleEffect.ref, $statCalc.applyStatModsToValue(battleEffect.attacked.ref, 0, ["miss_will"]));
 					}					
 				}			
 				if(battleEffect.type == "initiator"){

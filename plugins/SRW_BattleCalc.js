@@ -271,12 +271,12 @@ BattleCalc.prototype.performHitCalculation = function(attackerInfo, defenderInfo
 		}
 		
 		if($statCalc.applyStatModsToValue(attackerInfo.actor, 0, ["causality_manip"])){
-			if(finalHit >= 70){
+			if(finalHit >= 75){
 				finalHit = 100;
 			}
 		}
 		if($statCalc.applyStatModsToValue(defenderInfo.actor, 0, ["causality_manip"])){
-			if(finalHit <= 30){
+			if(finalHit <= 25){
 				finalHit = 0;
 			}
 		}
@@ -1095,8 +1095,8 @@ BattleCalc.prototype.generateBattleResult = function(isPrediction){
 					if(damageResult.damage > 0 && this._isSupportAttack && !$statCalc.applyStatModsToValue(this._attacker.actor, 0, ["full_support_damage"])){
 						damageResult.damage = Math.max(Math.floor(damageResult.damage * ENGINE_SETTINGS.SUPPORT_ATTACK_RATIO), 10);				
 					}
-					
-					
+				
+				
 				}
 				
 				
@@ -1138,8 +1138,8 @@ BattleCalc.prototype.generateBattleResult = function(isPrediction){
 				
 				aCache["damageInflicted"+attackedRef] = damageResult.damage;
 				
-				var drainRatio = $statCalc.applyMaxStatModsToValue(this._attacker.actor, 0, ["hp_drain"]);
-				if(drainRatio){
+				var drainRatio = $statCalc.applyStatModsToValue(this._attacker.actor, 0, ["hp_drain"]);
+					if(drainRatio){
 					if(!aCache.HPRestored){
 						aCache.HPRestored = 0;
 					}
@@ -1148,7 +1148,7 @@ BattleCalc.prototype.generateBattleResult = function(isPrediction){
 					//$statCalc.recoverHP(this._attacker.actor, amount);
 					//aCache.currentAnimHP+=amount;
 				}
-				
+								
 				activeDefenderCache.damageTaken+=damageResult.damage;
 				
 				if(activeDefenderCache.damageTaken >= activeDefenderCache.currentAnimHP + (activeDefenderCache.HPRestored || 0)){
@@ -1625,10 +1625,10 @@ BattleCalc.prototype.generateMapBattleResult = function(){
 	} else {
 		attacker = {actor: $gameTemp.currentBattleActor, action: $gameTemp.actorAction};
 	}
-	
+
 	$statCalc.setCurrentAttack(attacker.actor, attacker.action.attack);	
 	$statCalc.invalidateAbilityCache(attacker.actor);		
-	
+
 	var gainRecipient = attacker.actor;
 	
 	_this.prepareBattleCache(attacker, "initiator");
@@ -1642,8 +1642,16 @@ BattleCalc.prototype.generateMapBattleResult = function(){
 	if(weaponref.totalAmmo != -1){
 		aCache.ammoUsed = 1;
 	}
-	
-	
+
+	if(aCache.action.attack && 
+		(
+			$statCalc.applyStatModsToValue(attacker.actor, 0, ["self_destruct"])
+		)	
+	){
+		aCache.isDestroyed = true;
+		aCache.selfDestructed = true;
+	}
+
 	var MPCost = weaponref.MPCost;
 	if(MPCost != -1){
 		aCache.MPCost = MPCost;
@@ -1665,16 +1673,6 @@ BattleCalc.prototype.generateMapBattleResult = function(){
 		$statCalc.invalidateAbilityCache(target);
 		//temp variable used to resolve weapon effects per target in StatCalc.prototype.getActiveStatMods
 		$gameTemp.currentBattleTarget = target;
-		
-		if(aCache.action.attack && 
-			(
-				$statCalc.applyStatModsToValue(attacker.actor, 0, ["self_destruct"])
-			)	
-		){
-			aCache.isDestroyed = true;
-			aCache.selfDestructed = true;
-		}
-		
 		
 		var defender = {actor: target, action: {type: "none"}};
 		if(target != attacker.actor){
@@ -1753,7 +1751,7 @@ BattleCalc.prototype.generateMapBattleResult = function(){
 					){
 						aCache.isDestroyed = true;
 						aCache.selfDestructed = true;
-					}				
+					}								
 			} 
 			dCache.isHit = isHit;
 			dCache.type = "defender";
